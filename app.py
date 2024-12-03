@@ -4,8 +4,9 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# Use the External Database URL from Render for PostgreSQL
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('postgresql://todolist_g9bz_user:AwpfKivOhGL9xc4g2ubqqY0MEpcIU72G@dpg-ct7gimpu0jms73dqrplg-a.oregon-postgres.render.com/todolist_g9bzL')  # Make sure to set this in your environment or use the Render URL directly
+# Set the database URI with the correct PostgreSQL URL
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://todolist_g9bz_user:AwpfKivOhGL9xc4g2ubqqY0MEpcIU72G@dpg-ct7gimpu0jms73dqrplg-a.oregon-postgres.render.com/todolist_g9bz'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # To suppress a warning
 
 # Initialize the SQLAlchemy object
@@ -19,9 +20,9 @@ class Task(db.Model):
     def __repr__(self):
         return f'<Task {self.title}>'
 
-# Initialize the database
+# Initialize the database (make sure the tables are created)
 with app.app_context():
-    db.create_all()  # Creates the database tables if they don't exist
+    db.create_all()  # Creates the database tables
 
 @app.route('/')
 def index():
