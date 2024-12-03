@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .task { margin: 10px 0; }
+    .delete-btn { color: red; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Task Manager</h1>
+  <form id="taskForm">
+    <input type="text" id="taskTitle" placeholder="Enter task to add" required>
+    <button type="submit">Add Task</button>
+  </form>
+  
+  <form id="taskFormD">
+    <input type="text" id="taskTitleD" placeholder="Enter task to delete" required>
+    <button type="submit">Remove Task</button>
+  </form>
+  
+  <h2>Tasks:</h2>
+  <div id="taskList"></div>
+
+  <script>
+    const API_URL = "http://127.0.0.1:5000/api/tasks";
+
+    // Function to fetch and display tasks
+    async function fetchTasks() {
+      const response = await fetch(API_URL);
+      const tasks = await response.json();
+      const taskList = document.getElementById("taskList");
+      taskList.innerHTML = ""; // Clear existing tasks
+      tasks.forEach(task => {
+        const div = document.createElement("div");
+        div.className = "task";
+        div.innerHTML = `${task.title} <span class="delete-btn" onclick="deleteTask('${task.title}')">Delete</span>`;
+        taskList.appendChild(div);
+      });
+    }
+
+    // Function to add a new task
+    document.getElementById("taskForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const taskTitle = document.getElementById("taskTitle").value;
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: Date.now(), title: taskTitle })
+      });
+      document.getElementById("taskTitle").value = ""; // Clear input
+      fetchTasks(); // Refresh tasks after adding
+    });
+
+    // Function to delete a task by title
+    document.getElementById("taskFormD").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const taskTitleToDelete = document.getElementById("taskTitleD").value;
+      await fetch(API_URL, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: taskTitleToDelete })  // Send title to delete
+      });
+      document.getElementById("taskTitleD").value = ""; // Clear input
+      fetchTasks(); // Refresh tasks after deletion
+    });
+
+    // Fetch tasks on page load
+    fetchTasks();
+  </script>
+</body>
+</html>
